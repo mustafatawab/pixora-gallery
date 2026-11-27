@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+  CI: "true"
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Start local Supabase
+        run: bun run db:start
+
+      - name: Reset database and seed
+        run: bun run db:reset
+
+      - name: Write local environment
+        run: |
+          set -a
+          eval "$(bunx supabase status -o env)"
+          set +a
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
+            echo "CRON_SECRET=ci-cron-secret"
+          } > .env.local
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Unit, integration, and RLS tests
+        run: bun run test
+
+      - name: Build
+        run: bun run build
+
+      - name: Client bundle secret scan
+        run: bun run check:client-secrets
+
+      - name: Ensure Chrome is available
+        run: google-chrome --version || (sudo apt-get update && sudo apt-get install -y google-chrome-stable)
+
+      - name: Browser smoke tests
+        run: |
+          bun run start > /tmp/next.log 2>&1 &
+          SERVER_PID=$!
+          trap "kill $SERVER_PID" EXIT
+
+          for attempt in $(seq 1 60); do
+            if curl -fsS http://localhost:3000 >/dev/null; then
+              break
+            fi
+            sleep 2
+          done
+
+          curl -fsS http://localhost:3000 >/dev/null
+          bun run test:e2e
+
+      - name: Upload Next.js log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-log
+          path: /tmp/next.log
+          if-no-files-found: ignore
