@@ -56,7 +56,7 @@ try {
   await page.getByLabel("Email").fill(email)
   await page.getByLabel("Password", { exact: true }).fill(password)
   await page.getByLabel("Confirm password").fill(password)
-  await page.getByRole("button", { name: "Create Account" }).click()
+  await page.getByRole("button", { name: "Create account" }).click()
   await page.waitForURL(`${BASE_URL}/profile`, { timeout: 30_000 })
   await page.getByRole("heading", { name: fullName }).waitFor()
   await page.getByText(`@${username}`).first().waitFor()
@@ -65,19 +65,19 @@ try {
   await page.getByRole("button", { name: "Account menu" }).click()
   await page.getByText("Sign out").click()
   await page.waitForURL(`${BASE_URL}/`, { timeout: 30_000 })
-  await page.getByRole("link", { name: "Sign In" }).waitFor()
+  await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Sign in" }).waitFor()
 
   // 4. Protected route redirects, then login honors the safe `next` path.
   await page.goto(`${BASE_URL}/profile`)
   await page.waitForURL(/\/login\?next=%2Fprofile/, { timeout: 30_000 })
   await page.getByLabel("Email").fill(email)
   await page.getByLabel("Password", { exact: true }).fill(password)
-  await page.getByRole("button", { name: "Sign In" }).click()
+  await page.getByRole("button", { name: "Sign in" }).click()
   await page.waitForURL(`${BASE_URL}/profile`, { timeout: 30_000 })
 
   // 5. Upload page is reachable while authenticated.
   await page.goto(`${BASE_URL}/upload`)
-  await page.getByRole("heading", { name: "Upload Images" }).waitFor()
+  await page.getByRole("heading", { name: "Add to your archive." }).waitFor()
 
   // 6. Email confirmation callback (token_hash flow) creates a session.
   const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({

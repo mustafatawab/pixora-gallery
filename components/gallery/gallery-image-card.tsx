@@ -1,9 +1,8 @@
 import Image from "next/image"
 import Link from "next/link"
-import { Eye, EyeOff, ImageOff, Sparkles } from "lucide-react"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
+import { Eye, EyeOff, ImageOff } from "lucide-react"
+import { categoryLabel } from "@/lib/constants/categories"
+import { cn } from "@/lib/utils"
 import type { OwnerImage, PublicProfile } from "@/lib/types/domain"
 
 type GalleryImageCardProps = {
@@ -25,15 +24,18 @@ export function GalleryImageCard({
   priority = false,
 }: GalleryImageCardProps) {
   const isPublic = image.visibility === "public"
-  const uploaded = new Date(image.created_at).toLocaleDateString(undefined, {
+  const uploaded = new Date(image.created_at).toLocaleDateString("en-US", {
     month: "short",
-    day: "numeric",
     year: "numeric",
   })
 
   return (
-    <Card className="group overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-      <div className="relative aspect-square overflow-hidden bg-gray-100">
+    <article className="group">
+      <Link
+        href={`/u/${owner.username}`}
+        className="relative block aspect-square overflow-hidden bg-line/40"
+        aria-label={`${image.title} by @${owner.username}`}
+      >
         {image.signedUrl ? (
           <Image
             src={image.signedUrl}
@@ -41,84 +43,57 @@ export function GalleryImageCard({
             fill
             unoptimized
             priority={priority}
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            fetchPriority={priority ? "high" : "low"}
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
           />
         ) : (
-          <div className="flex h-full flex-col items-center justify-center gap-2 text-gray-600">
-            <ImageOff className="h-10 w-10" />
-            <span className="text-xs">Preview unavailable</span>
+          <div className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
+            <ImageOff className="h-8 w-8" />
+            <span className="text-[11px]">Preview unavailable</span>
           </div>
         )}
 
-        <div className="absolute top-3 left-3 flex flex-col items-start gap-1">
-          {isOwn && (
-            <Badge className="gap-1 bg-green-500 text-white hover:bg-green-600">
-              <Sparkles className="h-3 w-3" />
-              Your image
-            </Badge>
-          )}
-          {showVisibility && (
-            <Badge
-              variant="secondary"
-              className={`gap-1 text-xs ${
-                isPublic ? "bg-white/90 text-green-700" : "bg-slate-900/80 text-white"
-              }`}
-            >
-              {isPublic ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
-              {isPublic ? "Public" : "Private"}
-            </Badge>
-          )}
-        </div>
-      </div>
+        {isOwn && (
+          <span className="absolute left-2 top-2 bg-paper/90 px-2 py-0.5 text-[10px] font-medium text-brand">
+            Yours
+          </span>
+        )}
 
-      <CardContent className="p-4">
-        <h3 className="mb-1 line-clamp-1 text-lg font-semibold text-gray-900 transition-colors group-hover:text-blue-600">
+        {showVisibility && (
+          <span
+            className={cn(
+              "absolute right-2 top-2 inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium",
+              isPublic ? "bg-paper/90 text-ink" : "bg-ink/85 text-paper",
+            )}
+          >
+            {isPublic ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+            {isPublic ? "Public" : "Private"}
+          </span>
+        )}
+      </Link>
+
+      <div className="mt-3">
+        <h3 className="truncate font-serif text-[17px] leading-tight text-ink transition-colors group-hover:text-brand">
           {image.title}
         </h3>
-        {image.description && <p className="mb-3 line-clamp-2 text-sm text-gray-600">{image.description}</p>}
-
-        {image.tags.length > 0 && (
-          <div className="mb-3 flex flex-wrap gap-1">
-            {image.tags.slice(0, 3).map((tag) => (
-              <Badge key={tag} variant="outline" className="text-xs">
-                #{tag}
-              </Badge>
-            ))}
-            {image.tags.length > 3 && (
-              <Badge variant="outline" className="text-xs">
-                +{image.tags.length - 3}
-              </Badge>
-            )}
-          </div>
-        )}
-
-        <div className="flex items-center justify-between gap-3">
+        <div className="mt-1 flex items-baseline justify-between gap-3">
           <Link
             href={`/u/${owner.username}`}
-            className="flex min-w-0 items-center space-x-2 hover:opacity-80"
+            className="truncate text-xs text-muted-foreground transition-colors hover:text-ink"
           >
-            <Avatar className="h-7 w-7 shrink-0">
-              <AvatarFallback className="bg-blue-100 text-xs text-blue-600">
-                {owner.username.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="min-w-0">
-              <span className="block truncate text-sm font-medium text-gray-900">@{owner.username}</span>
-              {owner.full_name && <span className="block truncate text-xs text-gray-500">{owner.full_name}</span>}
-            </div>
+            @{owner.username}
           </Link>
-
-          <div className="flex shrink-0 flex-col items-end gap-1 text-xs text-gray-500">
-            <span>{uploaded}</span>
-            {image.category && (
-              <Badge variant="outline" className="text-[10px] capitalize">
-                {image.category}
-              </Badge>
-            )}
-          </div>
+          <span className="shrink-0 text-[11px] text-muted-foreground">{uploaded}</span>
         </div>
-      </CardContent>
-    </Card>
+        {(image.category || image.tags.length > 0) && (
+          <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
+            {image.category ? categoryLabel(image.category) : ""}
+            {image.category && image.tags.length > 0 ? ", " : ""}
+            {image.tags.length > 0 ? `#${image.tags.slice(0, 2).join(" #")}` : ""}
+          </p>
+        )}
+      </div>
+    </article>
   )
 }

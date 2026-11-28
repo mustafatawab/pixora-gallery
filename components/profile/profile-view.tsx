@@ -3,14 +3,12 @@
 import Link from "next/link"
 import { useEffect, useActionState } from "react"
 import { useRouter } from "next/navigation"
-import { Camera, Calendar, ExternalLink, Upload } from "lucide-react"
 import { updateProfileAction } from "@/actions/auth"
 import { initialFormState } from "@/lib/auth/form-state"
 import type { OwnerImage, Profile } from "@/lib/types/domain"
 import { ProfileImageCard } from "@/components/profile/profile-image-card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -31,7 +29,7 @@ export function ProfileView({ profile, images, initialTab = "public" }: ProfileV
   }, [state.status, router])
 
   const displayName = profile.full_name || profile.username
-  const joined = new Date(profile.created_at).toLocaleDateString(undefined, {
+  const joined = new Date(profile.created_at).toLocaleDateString("en-US", {
     month: "short",
     year: "numeric",
   })
@@ -39,164 +37,171 @@ export function ProfileView({ profile, images, initialTab = "public" }: ProfileV
   const privateCount = images.privateImages.length
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
-            <Avatar className="h-24 w-24">
-              <AvatarFallback className="text-2xl bg-blue-100 text-blue-600">
+    <div className="mx-auto max-w-[1440px] px-5 sm:px-8">
+      <header className="border-b border-line py-10 lg:py-14">
+        <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
+          <div className="flex items-start gap-6">
+            <Avatar className="h-20 w-20 border border-line sm:h-24 sm:w-24">
+              <AvatarFallback className="bg-ink font-serif text-3xl text-paper">
                 {profile.username.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
 
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-gray-900">{displayName}</h1>
-              <p className="text-gray-600">@{profile.username}</p>
-              {profile.bio && <p className="text-gray-700 mt-2 max-w-2xl">{profile.bio}</p>}
+            <div>
+              <h1 className="font-serif text-4xl leading-[1.02] tracking-[-0.03em] text-ink sm:text-5xl">
+                {displayName}
+              </h1>
+              <p className="mt-1 text-sm text-muted-foreground">@{profile.username}</p>
+              {profile.bio && <p className="mt-4 max-w-xl text-sm leading-relaxed text-ink/75">{profile.bio}</p>}
 
-              <div className="flex flex-wrap items-center gap-6 mt-4 text-sm">
-                <div className="flex items-center space-x-1">
-                  <Camera className="h-4 w-4 text-gray-500" />
-                  <span className="font-medium">{publicCount + privateCount}</span>
-                  <span className="text-gray-500">images</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <Calendar className="h-4 w-4 text-gray-500" />
-                  <span className="text-gray-500">Joined {joined}</span>
-                </div>
+              <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-muted-foreground">
+                <span>{publicCount + privateCount} photographs</span>
+                <span>{publicCount} public</span>
+                <span>Joined {joined}</span>
               </div>
             </div>
+          </div>
 
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <Button asChild variant="outline">
-                <Link href={`/u/${profile.username}`}>
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Public profile
-                </Link>
-              </Button>
-              <Button asChild>
-                <Link href="/upload">
-                  <Upload className="h-4 w-4 mr-2" />
-                  Upload images
-                </Link>
-              </Button>
-            </div>
+          <div className="flex flex-wrap gap-3">
+            <Button asChild variant="outline">
+              <Link href={`/u/${profile.username}`}>Public profile</Link>
+            </Button>
+            <Button asChild>
+              <Link href="/upload">Upload</Link>
+            </Button>
           </div>
         </div>
-      </div>
+      </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs defaultValue={initialTab} className="space-y-6">
-          <TabsList className="grid w-full sm:w-auto grid-cols-3">
-            <TabsTrigger value="public">Public ({publicCount})</TabsTrigger>
-            <TabsTrigger value="private">Private ({privateCount})</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-          </TabsList>
+      <Tabs defaultValue={initialTab} className="mt-8 pb-16">
+        <TabsList className="flex h-auto w-full justify-start gap-6 rounded-none border-b border-line bg-transparent p-0">
+          <TabsTrigger
+            value="public"
+            className="relative -mb-px rounded-none border-b-2 border-transparent px-0 pb-3 pt-0 text-sm font-medium text-muted-foreground transition-colors hover:text-ink data-[state=active]:border-ink data-[state=active]:bg-transparent data-[state=active]:text-ink data-[state=active]:shadow-none"
+          >
+            Public <span className="ml-1 text-muted-foreground">({publicCount})</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="private"
+            className="relative -mb-px rounded-none border-b-2 border-transparent px-0 pb-3 pt-0 text-sm font-medium text-muted-foreground transition-colors hover:text-ink data-[state=active]:border-ink data-[state=active]:bg-transparent data-[state=active]:text-ink data-[state=active]:shadow-none"
+          >
+            Private <span className="ml-1 text-muted-foreground">({privateCount})</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="settings"
+            className="relative -mb-px rounded-none border-b-2 border-transparent px-0 pb-3 pt-0 text-sm font-medium text-muted-foreground transition-colors hover:text-ink data-[state=active]:border-ink data-[state=active]:bg-transparent data-[state=active]:text-ink data-[state=active]:shadow-none"
+          >
+            Settings
+          </TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="public">
-            <ImageGallery
-              images={images.publicImages}
-              emptyTitle="No public images yet"
-              emptyDescription="Images you make public appear on your profile and in the gallery."
-            />
-          </TabsContent>
+        <TabsContent value="public" className="mt-9">
+          <h2 className="sr-only">Public photographs</h2>
+          <ImageGallery
+            images={images.publicImages}
+            emptyTitle="Nothing public yet."
+            emptyDescription="Photographs you publish appear here and in the public gallery."
+          />
+        </TabsContent>
 
-          <TabsContent value="private">
-            <ImageGallery
-              images={images.privateImages}
-              emptyTitle="No private images"
-              emptyDescription="Private images are visible only to you. Uploads are private by default."
-            />
-          </TabsContent>
+        <TabsContent value="private" className="mt-9">
+          <h2 className="sr-only">Private photographs</h2>
+          <ImageGallery
+            images={images.privateImages}
+            emptyTitle="Your private archive is empty."
+            emptyDescription="Private photographs are visible only to you. New uploads are private by default."
+          />
+        </TabsContent>
 
-          <TabsContent value="settings">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Profile Information</CardTitle>
-                  <CardDescription>Update your public profile details</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <form action={formAction} className="space-y-4" noValidate>
-                    {state.status === "success" && (
-                      <p className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-700">{state.message}</p>
-                    )}
-                    {state.status === "error" && state.message && (
-                      <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
-                        {state.message}
-                      </p>
-                    )}
+        <TabsContent value="settings" className="mt-9">
+          <div className="grid gap-12 lg:grid-cols-[1.15fr_1fr]">
+            <section>
+              <h2 className="font-serif text-2xl leading-none text-ink">Profile details</h2>
+              <p className="mt-2 text-sm text-muted-foreground">These appear on your public profile.</p>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="fullName">Full name</Label>
-                      <Input
-                        id="fullName"
-                        name="fullName"
-                        defaultValue={profile.full_name ?? ""}
-                        aria-invalid={Boolean(state.fieldErrors?.fullName)}
-                      />
-                      {state.fieldErrors?.fullName && (
-                        <p className="text-xs text-red-600">{state.fieldErrors.fullName}</p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="username">Username</Label>
-                      <Input
-                        id="username"
-                        name="username"
-                        defaultValue={profile.username}
-                        aria-invalid={Boolean(state.fieldErrors?.username)}
-                      />
-                      {state.fieldErrors?.username && (
-                        <p className="text-xs text-red-600">{state.fieldErrors.username}</p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="bio">Bio</Label>
-                      <Textarea
-                        id="bio"
-                        name="bio"
-                        defaultValue={profile.bio ?? ""}
-                        placeholder="Tell people about your photography..."
-                        rows={4}
-                        aria-invalid={Boolean(state.fieldErrors?.bio)}
-                      />
-                      {state.fieldErrors?.bio && <p className="text-xs text-red-600">{state.fieldErrors.bio}</p>}
-                    </div>
-
-                    <Button type="submit" disabled={pending}>
-                      {pending ? "Updating..." : "Update Profile"}
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Visibility</CardTitle>
-                  <CardDescription>How your images are shared</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3 text-sm text-gray-600">
-                  <p>
-                    <span className="font-medium text-gray-900">Public</span> images are listed in the gallery and
-                    visible to anyone.
+              <form action={formAction} className="mt-6 space-y-5" noValidate>
+                {state.status === "success" && (
+                  <p role="status" className="border-l-2 border-brand pl-3 text-sm leading-relaxed text-ink">
+                    {state.message}
                   </p>
-                  <p>
-                    <span className="font-medium text-gray-900">Private</span> images are visible only to you and are
-                    served through short-lived signed links.
+                )}
+                {state.status === "error" && state.message && (
+                  <p role="alert" className="border-l-2 border-destructive pl-3 text-sm leading-relaxed text-destructive">
+                    {state.message}
                   </p>
-                  <p>
-                    Choose visibility when uploading, then use <span className="font-medium text-gray-900">Make public</span>{" "}
-                    or <span className="font-medium text-gray-900">Make private</span> on any image to change it later.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-        </Tabs>
-      </div>
+                )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Full name</Label>
+                  <Input
+                    id="fullName"
+                    name="fullName"
+                    defaultValue={profile.full_name ?? ""}
+                    aria-invalid={Boolean(state.fieldErrors?.fullName)}
+                  />
+                  {state.fieldErrors?.fullName && (
+                    <p className="text-xs text-destructive">{state.fieldErrors.fullName}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="username">Username</Label>
+                  <Input
+                    id="username"
+                    name="username"
+                    defaultValue={profile.username}
+                    aria-invalid={Boolean(state.fieldErrors?.username)}
+                  />
+                  {state.fieldErrors?.username && (
+                    <p className="text-xs text-destructive">{state.fieldErrors.username}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="bio">Bio</Label>
+                  <Textarea
+                    id="bio"
+                    name="bio"
+                    defaultValue={profile.bio ?? ""}
+                    placeholder="Tell people about your photography…"
+                    rows={4}
+                    aria-invalid={Boolean(state.fieldErrors?.bio)}
+                  />
+                  {state.fieldErrors?.bio && <p className="text-xs text-destructive">{state.fieldErrors.bio}</p>}
+                </div>
+
+                <Button type="submit" disabled={pending}>
+                  {pending ? "Saving…" : "Save changes"}
+                </Button>
+              </form>
+            </section>
+
+            <aside className="border-t border-line pt-8 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">
+              <h2 className="font-serif text-2xl leading-none text-ink">Visibility</h2>
+              <dl className="mt-5 divide-y divide-line border-y border-line text-sm">
+                <div className="py-4">
+                  <dt className="font-medium text-ink">Public</dt>
+                  <dd className="mt-1 leading-relaxed text-muted-foreground">
+                    Listed in the gallery and visible to anyone with the link.
+                  </dd>
+                </div>
+                <div className="py-4">
+                  <dt className="font-medium text-ink">Private</dt>
+                  <dd className="mt-1 leading-relaxed text-muted-foreground">
+                    Visible only to you, served through short-lived signed links.
+                  </dd>
+                </div>
+                <div className="py-4">
+                  <dt className="font-medium text-ink">Changing later</dt>
+                  <dd className="mt-1 leading-relaxed text-muted-foreground">
+                    Use the visibility control on any photograph in your dashboard.
+                  </dd>
+                </div>
+              </dl>
+            </aside>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
@@ -215,7 +220,7 @@ function ImageGallery({
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+    <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 lg:grid-cols-3 xl:grid-cols-4">
       {images.map((image) => (
         <ProfileImageCard key={image.id} image={image} />
       ))}
@@ -225,18 +230,12 @@ function ImageGallery({
 
 function EmptyGallery({ title, description }: { title: string; description: string }) {
   return (
-    <Card>
-      <CardContent className="text-center py-16">
-        <Camera className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-        <p className="text-gray-600 text-lg mb-2">{title}</p>
-        <p className="text-gray-400 mb-4">{description}</p>
-        <Button asChild variant="outline">
-          <Link href="/upload">
-            <Upload className="h-4 w-4 mr-2" />
-            Upload an image
-          </Link>
-        </Button>
-      </CardContent>
-    </Card>
+    <div className="flex min-h-[34vh] flex-col justify-center border-b border-line py-12">
+      <p className="max-w-md font-serif text-3xl leading-tight text-ink">{title}</p>
+      <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">{description}</p>
+      <Button asChild variant="outline" className="mt-6 w-fit">
+        <Link href="/upload">Upload a photograph</Link>
+      </Button>
+    </div>
   )
 }

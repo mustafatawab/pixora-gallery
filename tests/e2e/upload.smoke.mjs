@@ -78,7 +78,7 @@ try {
   await page.getByLabel("Email").fill(email)
   await page.getByLabel("Password", { exact: true }).fill(password)
   await page.getByLabel("Confirm password").fill(password)
-  await page.getByRole("button", { name: "Create Account" }).click()
+  await page.getByRole("button", { name: "Create account" }).click()
   await page.waitForURL(`${BASE_URL}/profile`, { timeout: 30_000 })
 
   // Upload a private image (the default).
@@ -90,7 +90,7 @@ try {
   })
   await page.locator("#title").fill(title)
 
-  const submit = page.getByRole("button", { name: "Upload 1 Image" })
+  const submit = page.getByRole("button", { name: "Upload 1 image" })
   await submit.waitFor()
   await submit.click()
 

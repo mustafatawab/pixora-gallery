@@ -3,23 +3,31 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 export default function Loading() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="border-b bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-6">
-            <Skeleton className="h-24 w-24 rounded-full" />
-            <div className="space-y-3">
-              <Skeleton className="h-7 w-48" />
-              <Skeleton className="h-4 w-32" />
-              <Skeleton className="h-4 w-64" />
+    <div className="mx-auto max-w-[1440px] px-5 sm:px-8">
+      <div className="border-b border-line py-10 lg:py-14">
+        <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
+          <div className="flex items-start gap-6">
+            <Skeleton className="h-20 w-20 sm:h-24 sm:w-24" />
+            <div>
+              <Skeleton className="h-11 w-56" />
+              <Skeleton className="mt-2 h-3 w-24" />
+              <Skeleton className="mt-5 h-4 w-72" />
+              <div className="mt-4 flex gap-5">
+                <Skeleton className="h-3 w-24" />
+                <Skeleton className="h-3 w-20" />
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <Skeleton className="mb-6 h-7 w-40" />
-        <GallerySkeleton />
+      <div className="py-10 lg:py-14">
+        <div className="border-b border-line pb-5">
+          <Skeleton className="h-7 w-44" />
+        </div>
+        <div className="mt-9">
+          <GallerySkeleton />
+        </div>
       </div>
     </div>
   )

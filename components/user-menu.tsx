@@ -24,44 +24,54 @@ export function UserMenu({ username, fullName }: UserMenuProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full hover:bg-gray-100" aria-label="Account menu">
-          <Avatar className="h-8 w-8">
-            <AvatarFallback className="bg-blue-100 text-blue-600">
+        <Button
+          variant="ghost"
+          className="h-9 w-9 rounded-none p-0 hover:bg-transparent"
+          aria-label="Account menu"
+        >
+          <Avatar className="h-9 w-9 rounded-none border border-line">
+            <AvatarFallback className="rounded-none bg-ink font-serif text-sm text-paper">
               {username.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end" forceMount>
-        <div className="flex flex-col space-y-1 p-2 leading-none">
-          <p className="font-medium">{fullName || username}</p>
-          <p className="truncate text-sm text-muted-foreground">@{username}</p>
+      <DropdownMenuContent
+        className="w-60 rounded-none border-line bg-card p-0 shadow-[0_18px_50px_rgba(17,17,16,0.16)]"
+        align="end"
+        forceMount
+      >
+        <div className="border-b border-line px-4 py-3">
+          <p className="font-serif text-lg leading-tight text-ink">{fullName || username}</p>
+          <p className="mt-0.5 truncate text-xs text-muted-foreground">@{username}</p>
         </div>
-        <DropdownMenuItem asChild>
-          <Link href="/profile" className="flex items-center cursor-pointer">
-            <User className="mr-2 h-4 w-4" />
-            Dashboard
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href={`/u/${username}`} className="flex items-center cursor-pointer">
-            <Globe className="mr-2 h-4 w-4" />
-            Public profile
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          disabled={pending}
-          className="cursor-pointer"
-          onSelect={(event) => {
-            event.preventDefault()
-            startTransition(() => {
-              void logoutAction()
-            })
-          }}
-        >
-          <LogOut className="mr-2 h-4 w-4" />
-          {pending ? "Signing out..." : "Sign out"}
-        </DropdownMenuItem>
+        <div className="p-1">
+          <DropdownMenuItem asChild className="cursor-pointer rounded-none px-3 py-2.5 text-sm focus:bg-accent">
+            <Link href="/profile" className="flex items-center">
+              <User className="mr-2.5 h-4 w-4" />
+              Dashboard
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild className="cursor-pointer rounded-none px-3 py-2.5 text-sm focus:bg-accent">
+            <Link href={`/u/${username}`} className="flex items-center">
+              <Globe className="mr-2.5 h-4 w-4" />
+              Public profile
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            disabled={pending}
+            className="cursor-pointer rounded-none px-3 py-2.5 text-sm focus:bg-accent"
+            onSelect={(event) => {
+              event.preventDefault()
+              startTransition(() => {
+                void logoutAction()
+              })
+            }}
+          >
+            <LogOut className="mr-2.5 h-4 w-4" />
+            {pending ? "Signing out…" : "Sign out"}
+          </DropdownMenuItem>
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   )

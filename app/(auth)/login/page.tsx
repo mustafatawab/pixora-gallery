@@ -1,8 +1,8 @@
 import type { Metadata } from "next"
+import Link from "next/link"
 import { AuthShell } from "@/components/auth/auth-shell"
 import { LoginForm } from "@/components/auth/login-form"
 import { safeNextPath } from "@/lib/auth/redirects"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 export const metadata: Metadata = { title: "Sign in" }
 
@@ -14,16 +14,19 @@ export default async function LoginPage({
   const { next, error } = await searchParams
 
   return (
-    <AuthShell title="Welcome back" subtitle="Sign in to your Pixora account">
-      <Card className="shadow-xl border-0">
-        <CardHeader className="text-center pb-4">
-          <CardTitle className="text-2xl font-bold">Sign In</CardTitle>
-          <CardDescription>Enter your credentials to manage your galleries</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <LoginForm next={safeNextPath(next)} callbackFailed={error === "auth_callback_failed"} />
-        </CardContent>
-      </Card>
+    <AuthShell
+      title="Welcome back."
+      subtitle="Sign in to publish new work and keep your archive in order."
+      footer={
+        <>
+          New to Pixora?{" "}
+          <Link href="/register" className="link-underline font-medium text-ink">
+            Create an account
+          </Link>
+        </>
+      }
+    >
+      <LoginForm next={safeNextPath(next)} callbackFailed={error === "auth_callback_failed"} />
     </AuthShell>
   )
 }

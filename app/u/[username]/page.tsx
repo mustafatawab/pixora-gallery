@@ -1,15 +1,12 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { Calendar, Camera, EyeOff, LayoutDashboard, Upload } from "lucide-react"
 import { getCurrentProfile } from "@/lib/auth/current-user"
 import { getGalleryImages } from "@/lib/services/images"
 import { getProfileByUsername } from "@/lib/services/profiles"
 import { GalleryImageCard } from "@/components/gallery/gallery-image-card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 
 type PublicProfilePageProps = {
   params: Promise<{ username: string }>
@@ -42,125 +39,103 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   )
   const publicCount = gallery.publicImages.length
   const privateCount = gallery.privateImages.length
+  const shownCount = isOwner ? images.length : publicCount
 
   const displayName = profile.full_name || profile.username
-  const joined = new Date(profile.created_at).toLocaleDateString(undefined, {
+  const joined = new Date(profile.created_at).toLocaleDateString("en-US", {
     month: "short",
     year: "numeric",
   })
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="border-b bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-start gap-5 md:flex-row md:items-center md:gap-6">
-            <Avatar className="h-24 w-24">
-              <AvatarFallback className="bg-blue-100 text-2xl text-blue-600">
+    <div className="mx-auto max-w-[1440px] px-5 sm:px-8">
+      <header className="border-b border-line py-10 lg:py-14">
+        <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
+          <div className="flex items-start gap-6">
+            <Avatar className="h-20 w-20 border border-line sm:h-24 sm:w-24">
+              <AvatarFallback className="bg-ink font-serif text-3xl text-paper">
                 {profile.username.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
 
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-gray-900">{displayName}</h1>
-              <p className="text-gray-600">@{profile.username}</p>
-              {profile.bio && <p className="mt-2 max-w-2xl text-gray-700">{profile.bio}</p>}
+            <div>
+              <h1 className="font-serif text-4xl leading-[1.02] tracking-[-0.03em] text-ink sm:text-5xl">
+                {displayName}
+              </h1>
+              <p className="mt-1 text-sm text-muted-foreground">@{profile.username}</p>
+              {profile.bio && <p className="mt-4 max-w-xl text-sm leading-relaxed text-ink/75">{profile.bio}</p>}
 
-              <div className="mt-4 flex flex-wrap items-center gap-6 text-sm">
-                <div className="flex items-center space-x-1">
-                  <Camera className="h-4 w-4 text-gray-500" />
-                  <span className="font-medium">{isOwner ? images.length : publicCount}</span>
-                  <span className="text-gray-500">{isOwner ? "images" : "public images"}</span>
-                </div>
-                {isOwner && privateCount > 0 && (
-                  <div className="flex items-center space-x-1">
-                    <EyeOff className="h-4 w-4 text-gray-500" />
-                    <span className="font-medium">{privateCount}</span>
-                    <span className="text-gray-500">private</span>
-                  </div>
-                )}
-                <div className="flex items-center space-x-1">
-                  <Calendar className="h-4 w-4 text-gray-500" />
-                  <span className="text-gray-500">Joined {joined}</span>
-                </div>
+              <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-muted-foreground">
+                <span>
+                  {shownCount} photograph{shownCount === 1 ? "" : "s"}
+                </span>
+                {isOwner && privateCount > 0 && <span>{privateCount} private</span>}
+                <span>Joined {joined}</span>
               </div>
             </div>
-
-            {isOwner && (
-              <div className="flex flex-col gap-2 sm:flex-row">
-                <Button asChild variant="outline">
-                  <Link href="/profile">
-                    <LayoutDashboard className="mr-2 h-4 w-4" />
-                    Dashboard
-                  </Link>
-                </Button>
-                <Button asChild>
-                  <Link href="/upload">
-                    <Upload className="mr-2 h-4 w-4" />
-                    Upload
-                  </Link>
-                </Button>
-              </div>
-            )}
           </div>
 
           {isOwner && (
-            <p className="mt-5 rounded-md bg-blue-50 px-3 py-2 text-sm text-blue-800">
-              You are viewing your public profile. Private images are shown with a badge and are visible only to you.
-            </p>
+            <div className="flex flex-wrap gap-3">
+              <Button asChild variant="outline">
+                <Link href="/profile">Dashboard</Link>
+              </Button>
+              <Button asChild>
+                <Link href="/upload">Upload</Link>
+              </Button>
+            </div>
           )}
         </div>
-      </div>
 
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        {isOwner && (
+          <p className="mt-6 border-l-2 border-brand pl-3 text-xs leading-relaxed text-muted-foreground">
+            You&apos;re viewing your public profile. Private photographs are marked and visible only to you.
+          </p>
+        )}
+      </header>
+
+      <section className="py-10 lg:py-14">
         {images.length === 0 ? (
-          <Card>
-            <CardContent className="py-16 text-center">
-              <Camera className="mx-auto mb-4 h-16 w-16 text-gray-400" />
-              <p className="mb-2 text-lg text-gray-600">
-                {isOwner ? "You haven't uploaded any images yet." : "No public images yet."}
-              </p>
-              <p className="mb-4 text-gray-400">
-                {isOwner
-                  ? "Upload your first photo and choose whether it is public or private."
-                  : `@${profile.username} hasn't published any images.`}
-              </p>
-              {isOwner && (
-                <Button asChild>
-                  <Link href="/upload">
-                    <Upload className="mr-2 h-4 w-4" />
-                    Upload an image
-                  </Link>
-                </Button>
-              )}
-            </CardContent>
-          </Card>
+          <div className="flex min-h-[34vh] flex-col justify-center border-b border-line">
+            <p className="max-w-md font-serif text-3xl leading-tight text-ink">
+              {isOwner ? "Your gallery is still empty." : "No photographs yet."}
+            </p>
+            <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
+              {isOwner
+                ? "Upload your first photograph and choose whether it is public or private."
+                : `@${profile.username} hasn't published any photographs.`}
+            </p>
+            {isOwner && (
+              <Button asChild className="mt-6 w-fit">
+                <Link href="/upload">Upload a photograph</Link>
+              </Button>
+            )}
+          </div>
         ) : (
           <>
-            <div className="mb-6 flex flex-wrap items-center gap-3">
-              <h2 className="text-xl font-semibold text-gray-900">
-                {isOwner ? "All images" : "Public gallery"} ({isOwner ? images.length : publicCount})
+            <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-line pb-5">
+              <h2 className="font-serif text-2xl leading-none text-ink">
+                {isOwner ? "All photographs" : "Public gallery"}
               </h2>
-              {isOwner && privateCount > 0 && (
-                <Badge variant="secondary" className="gap-1">
-                  <EyeOff className="h-3 w-3" />
-                  {privateCount} private
-                </Badge>
-              )}
+              <span className="text-xs text-muted-foreground">
+                {isOwner ? `${images.length} total` : `${publicCount} photograph${publicCount === 1 ? "" : "s"}`}
+              </span>
             </div>
 
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {images.map((image) => (
+            <div className="mt-9 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 lg:grid-cols-3 xl:grid-cols-4">
+              {images.map((image, index) => (
                 <GalleryImageCard
                   key={image.id}
                   image={image}
                   owner={profile}
                   showVisibility={isOwner}
+                  priority={index === 0}
                 />
               ))}
             </div>
           </>
         )}
-      </div>
+      </section>
     </div>
   )
 }

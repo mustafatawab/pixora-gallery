@@ -4,9 +4,9 @@ import type React from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { AlertCircle, CheckCircle2, ImageIcon, Loader2, Upload, X } from "lucide-react"
+import { ChevronDown, ImagePlus, Loader2, X } from "lucide-react"
 import { createImageAction } from "@/actions/images"
-import { IMAGE_CATEGORIES } from "@/lib/constants/categories"
+import { IMAGE_CATEGORIES, categoryLabel } from "@/lib/constants/categories"
 import { createClient } from "@/lib/supabase/client"
 import {
   buildImagePath,
@@ -19,9 +19,9 @@ import {
 } from "@/lib/storage/paths"
 import { prepareImageForUpload } from "@/lib/storage/thumbnails"
 import type { ImageVisibility, Profile } from "@/lib/types/domain"
+import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
@@ -386,336 +386,325 @@ export function UploadForm({ profile }: UploadFormProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Upload Images</h1>
-          <p className="text-gray-600">
-            Share your photography as @{profile.username}. Uploads go straight to your private folder in Supabase
-            Storage.
-          </p>
-        </div>
+    <div className="mx-auto max-w-[1440px] px-5 py-10 sm:px-8 lg:py-14">
+      <header className="border-b border-line pb-8">
+        <h1 className="max-w-[16ch] font-serif text-4xl leading-[1.02] tracking-[-0.03em] text-ink sm:text-5xl">
+          Add to your archive.
+        </h1>
+        <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
+          Uploading as <span className="text-ink">@{profile.username}</span>. Files go straight to your private folder,
+          and web previews are generated in your browser.
+        </p>
+      </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Image details</CardTitle>
-                <CardDescription>
-                  Choose files, add details, then send them to your gallery. Private is the default.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleUpload} className="space-y-6" noValidate>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <Label>Images *</Label>
-                      <span className="text-xs text-gray-500">
-                        JPEG, PNG, WebP or AVIF · up to 50 MB each
-                      </span>
-                    </div>
+      <form onSubmit={handleUpload} className="mt-10 grid gap-12 lg:grid-cols-12 lg:gap-14" noValidate>
+        <div className="space-y-10 lg:col-span-8">
+          <section>
+            <div className="flex flex-wrap items-baseline justify-between gap-3">
+              <h2 className="font-serif text-2xl leading-none text-ink">Photographs</h2>
+              <span className="text-xs text-muted-foreground">JPEG, PNG, WebP, AVIF · 50 MB each</span>
+            </div>
 
-                    <div
-                      role="button"
-                      tabIndex={0}
-                      aria-label="Add images"
-                      onClick={() => fileInputRef.current?.click()}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter" || event.key === " ") {
-                          event.preventDefault()
-                          fileInputRef.current?.click()
-                        }
-                      }}
-                      onDragOver={(event) => {
-                        event.preventDefault()
-                        setDragging(true)
-                      }}
-                      onDragLeave={() => setDragging(false)}
-                      onDrop={handleDrop}
-                      className={`border-2 border-dashed rounded-lg text-center transition-colors cursor-pointer ${
-                        dragging ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-gray-400 bg-white"
-                      } ${items.length === 0 ? "p-12" : "p-6"}`}
-                    >
-                      <Upload className={`mx-auto text-gray-400 mb-3 ${items.length === 0 ? "h-14 w-14" : "h-8 w-8"}`} />
-                      <p className="text-blue-600 font-medium">
-                        {items.length === 0 ? "Click to upload" : "Add more images"}
-                        <span className="text-gray-600 font-normal"> or drag and drop</span>
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {items.length === 0
-                          ? "You can select multiple images at once"
-                          : `${items.length} selected · click to add more`}
-                      </p>
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept={IMAGE_MIME_TYPES.join(",")}
-                        multiple
-                        onChange={handleFileSelect}
-                        className="sr-only"
-                        tabIndex={-1}
-                      />
-                    </div>
+            <div
+              role="button"
+              tabIndex={0}
+              aria-label="Add photographs"
+              onClick={() => fileInputRef.current?.click()}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault()
+                  fileInputRef.current?.click()
+                }
+              }}
+              onDragOver={(event) => {
+                event.preventDefault()
+                setDragging(true)
+              }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={handleDrop}
+              className={cn(
+                "mt-4 flex cursor-pointer flex-col items-center justify-center border border-dashed px-6 text-center transition-colors",
+                dragging ? "border-brand bg-brand-soft" : "border-line bg-card hover:border-ink",
+                items.length === 0 ? "py-16" : "py-9",
+              )}
+            >
+              <ImagePlus className="h-8 w-8 text-muted-foreground" strokeWidth={1.25} aria-hidden="true" />
+              <p className="mt-4 text-sm font-medium text-ink">
+                {items.length === 0 ? "Choose photographs" : "Add more photographs"}
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                Drag files here, or click to browse. Select several at once.
+              </p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept={IMAGE_MIME_TYPES.join(",")}
+                multiple
+                onChange={handleFileSelect}
+                className="sr-only"
+                tabIndex={-1}
+              />
+            </div>
 
-                    {items.length > 0 && (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        {items.map((item) => {
-                          const canRemove = item.status === "ready" || item.status === "error"
-                          return (
-                            <div key={item.id} className="relative overflow-hidden rounded-lg border bg-white">
-                              <div className="aspect-square relative bg-gray-100">
-                                <Image
-                                  src={item.previewUrl}
-                                  alt={item.file.name}
-                                  fill
-                                  unoptimized
-                                  sizes="(max-width: 640px) 50vw, 200px"
-                                  className="object-cover"
-                                />
-                                {(item.preparing || item.status === "uploading" || item.status === "saving") && (
-                                  <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white text-xs gap-2">
-                                    <Loader2 className="h-6 w-6 animate-spin" />
-                                    {statusLabel(item)}
-                                  </div>
-                                )}
-                                {canRemove && !submitting && (
-                                  <Button
-                                    type="button"
-                                    variant="destructive"
-                                    size="sm"
-                                    className="absolute top-2 right-2 h-7 w-7 rounded-full p-0"
-                                    onClick={() => removeItem(item)}
-                                    aria-label={`Remove ${item.file.name}`}
-                                  >
-                                    <X className="h-3.5 w-3.5" />
-                                  </Button>
-                                )}
-                              </div>
-                              <div className="p-2 space-y-1">
-                                <p className="truncate text-xs font-medium text-gray-900">{item.file.name}</p>
-                                <div className="flex items-center justify-between gap-1">
-                                  <span className="text-[11px] text-gray-500">{formatBytes(item.file.size)}</span>
-                                  {item.status === "done" ? (
-                                    <Badge variant="secondary" className="text-[10px] bg-green-50 text-green-700">
-                                      Uploaded
-                                    </Badge>
-                                  ) : item.status === "error" ? (
-                                    <Badge variant="destructive" className="text-[10px]">
-                                      Failed
-                                    </Badge>
-                                  ) : null}
-                                </div>
-                                {item.status === "error" && item.error && (
-                                  <p className="text-[11px] text-red-600 line-clamp-2" title={item.error}>
-                                    {item.error}
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                          )
-                        })}
+            {items.length > 0 && (
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {items.map((item) => {
+                  const canRemove = item.status === "ready" || item.status === "error"
+                  const busy = item.preparing || item.status === "uploading" || item.status === "saving"
+
+                  return (
+                    <div key={item.id} className="border border-line bg-card">
+                      <div className="relative aspect-square overflow-hidden bg-line/40">
+                        <Image
+                          src={item.previewUrl}
+                          alt={item.file.name}
+                          fill
+                          unoptimized
+                          sizes="(max-width: 640px) 50vw, 240px"
+                          className="object-cover"
+                        />
+
+                        {busy && (
+                          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-ink/70 px-2 text-center text-[11px] text-paper">
+                            <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+                            {statusLabel(item)}
+                          </div>
+                        )}
+
+                        {canRemove && !submitting && (
+                          <button
+                            type="button"
+                            onClick={() => removeItem(item)}
+                            aria-label={`Remove ${item.file.name}`}
+                            className="absolute right-2 top-2 inline-flex h-7 w-7 items-center justify-center bg-paper/90 text-ink transition-colors hover:bg-destructive hover:text-paper"
+                          >
+                            <X className="h-3.5 w-3.5" aria-hidden="true" />
+                          </button>
+                        )}
                       </div>
-                    )}
-                  </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="title">Title *</Label>
-                      <Input
-                        id="title"
-                        value={form.title}
-                        onChange={(event) => setForm((previous) => ({ ...previous, title: event.target.value }))}
-                        placeholder="Enter a title"
-                        maxLength={200}
-                        required
-                        aria-invalid={Boolean(fieldErrors.title)}
-                        disabled={submitting}
-                      />
-                      {fieldErrors.title && <p className="text-xs text-red-600">{fieldErrors.title}</p>}
-                      {items.length > 1 && !fieldErrors.title && (
-                        <p className="text-xs text-gray-500">
-                          Numbering is added automatically for multiple images.
+                      <div className="space-y-1.5 p-2.5">
+                        <p className="truncate text-xs font-medium text-ink" title={item.file.name}>
+                          {item.file.name}
                         </p>
-                      )}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="category">Category</Label>
-                      <select
-                        id="category"
-                        value={form.category}
-                        onChange={(event) => setForm((previous) => ({ ...previous, category: event.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60"
-                        disabled={submitting}
-                      >
-                        {IMAGE_CATEGORIES.map((category) => (
-                          <option key={category} value={category}>
-                            {category.charAt(0).toUpperCase() + category.slice(1)}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea
-                      id="description"
-                      value={form.description}
-                      onChange={(event) =>
-                        setForm((previous) => ({ ...previous, description: event.target.value }))
-                      }
-                      placeholder="Describe the images, the story behind them, or technical details…"
-                      rows={4}
-                      maxLength={2000}
-                      aria-invalid={Boolean(fieldErrors.description)}
-                      disabled={submitting}
-                    />
-                    {fieldErrors.description && <p className="text-xs text-red-600">{fieldErrors.description}</p>}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="tags">Tags</Label>
-                    <Input
-                      id="tags"
-                      value={form.tags}
-                      onChange={(event) => setForm((previous) => ({ ...previous, tags: event.target.value }))}
-                      placeholder="nature, landscape, sunset (comma separated, max 10)"
-                      aria-invalid={Boolean(fieldErrors.tags)}
-                      disabled={submitting}
-                    />
-                    {fieldErrors.tags && <p className="text-xs text-red-600">{fieldErrors.tags}</p>}
-                    {tagList.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {tagList.map((tag) => (
-                          <Badge key={tag} variant="secondary">
-                            #{tag}
-                          </Badge>
-                        ))}
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[11px] text-muted-foreground">{formatBytes(item.file.size)}</span>
+                          {item.status === "done" ? (
+                            <Badge variant="secondary" className="text-[10px]">
+                              Uploaded
+                            </Badge>
+                          ) : item.status === "error" ? (
+                            <Badge variant="destructive" className="text-[10px]">
+                              Failed
+                            </Badge>
+                          ) : null}
+                        </div>
+                        {item.status === "error" && item.error && (
+                          <p className="line-clamp-2 text-[11px] leading-snug text-destructive" title={item.error}>
+                            {item.error}
+                          </p>
+                        )}
                       </div>
-                    )}
-                  </div>
-
-                  <div className="flex items-start justify-between gap-4 rounded-lg border p-4">
-                    <div className="space-y-1">
-                      <Label htmlFor="visibility" className="cursor-pointer">
-                        Make images public
-                      </Label>
-                      <p className="text-sm text-gray-500">
-                        {form.visibility === "public"
-                          ? "Anyone can view these images. They will appear in the public gallery."
-                          : "Only you can see these images. You can make them public later."}
-                      </p>
                     </div>
-                    <Switch
-                      id="visibility"
-                      checked={form.visibility === "public"}
-                      onCheckedChange={(checked) =>
-                        setForm((previous) => ({ ...previous, visibility: checked ? "public" : "private" }))
-                      }
-                      disabled={submitting}
-                    />
-                  </div>
+                  )
+                })}
+              </div>
+            )}
+          </section>
 
-                  {formError && (
-                    <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
-                      {formError}
+          <section className="border-t border-line pt-8">
+            <h2 className="font-serif text-2xl leading-none text-ink">Details</h2>
+
+            <div className="mt-6 space-y-6">
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="title">Title</Label>
+                  <Input
+                    id="title"
+                    value={form.title}
+                    onChange={(event) => setForm((previous) => ({ ...previous, title: event.target.value }))}
+                    placeholder="Name this photograph"
+                    maxLength={200}
+                    required
+                    aria-invalid={Boolean(fieldErrors.title)}
+                    disabled={submitting}
+                  />
+                  {fieldErrors.title && <p className="text-xs text-destructive">{fieldErrors.title}</p>}
+                  {items.length > 1 && !fieldErrors.title && (
+                    <p className="text-xs text-muted-foreground">
+                      A number is added to each title for multi-image uploads.
                     </p>
                   )}
-                  {notice && (
-                    <p role="status" className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800">
-                      {notice}
-                    </p>
-                  )}
-
-                  {submitting && (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-sm text-gray-600">
-                        <span>Uploading images…</span>
-                        <span>{progress}%</span>
-                      </div>
-                      <Progress value={progress} className="w-full" />
-                    </div>
-                  )}
-
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={submitting || isPreparing || items.length === 0 || pendingItems.length === 0}
-                  >
-                    {submitting ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Uploading…
-                      </>
-                    ) : isPreparing ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Preparing previews…
-                      </>
-                    ) : (
-                      `Upload ${pendingItems.length} Image${pendingItems.length === 1 ? "" : "s"}`
-                    )}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <ImageIcon className="h-5 w-5 mr-2" />
-                  Upload tips
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 text-sm">
-                <div>
-                  <h4 className="font-medium mb-1">Quality</h4>
-                  <p className="text-gray-600">Upload high-resolution files for the best viewing experience.</p>
                 </div>
-                <div>
-                  <h4 className="font-medium mb-1">Formats</h4>
-                  <p className="text-gray-600">JPEG, PNG, WebP and AVIF. Maximum 50 MB per image.</p>
-                </div>
-                <div>
-                  <h4 className="font-medium mb-1">Privacy</h4>
-                  <p className="text-gray-600">
-                    Images are private by default. Public galleries use a web-optimized preview generated in your
-                    browser, so metadata such as GPS location is not published.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-medium mb-1">Tags</h4>
-                  <p className="text-gray-600">Add up to 10 tags so people can discover your work.</p>
-                </div>
-              </CardContent>
-            </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>How it works</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 shrink-0" />
-                    <span className="text-gray-600">Files upload directly from your browser to Storage.</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <AlertCircle className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
-                    <span className="text-gray-600">Your session and RLS enforce that only you can write to your folder.</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <ImageIcon className="h-4 w-4 text-gray-500 mt-0.5 shrink-0" />
-                    <span className="text-gray-600">Image details are saved after the file is verified.</span>
+                <div className="space-y-2">
+                  <Label htmlFor="category">Category</Label>
+                  <div className="relative">
+                    <select
+                      id="category"
+                      value={form.category}
+                      onChange={(event) => setForm((previous) => ({ ...previous, category: event.target.value }))}
+                      className="h-11 w-full appearance-none border border-line bg-card px-3.5 pr-9 text-[15px] text-ink transition-colors focus-visible:border-brand disabled:cursor-not-allowed disabled:opacity-50"
+                      disabled={submitting}
+                    >
+                      {IMAGE_CATEGORIES.map((category) => (
+                        <option key={category} value={category}>
+                          {categoryLabel(category)}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown
+                      className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                      aria-hidden="true"
+                    />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={form.description}
+                  onChange={(event) => setForm((previous) => ({ ...previous, description: event.target.value }))}
+                  placeholder="Describe the images, the story behind them, or technical details…"
+                  rows={4}
+                  maxLength={2000}
+                  aria-invalid={Boolean(fieldErrors.description)}
+                  disabled={submitting}
+                />
+                {fieldErrors.description && <p className="text-xs text-destructive">{fieldErrors.description}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="tags">Tags</Label>
+                <Input
+                  id="tags"
+                  value={form.tags}
+                  onChange={(event) => setForm((previous) => ({ ...previous, tags: event.target.value }))}
+                  placeholder="nature, landscape, sunset (comma separated, max 10)"
+                  aria-invalid={Boolean(fieldErrors.tags)}
+                  disabled={submitting}
+                />
+                {fieldErrors.tags && <p className="text-xs text-destructive">{fieldErrors.tags}</p>}
+                {tagList.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {tagList.map((tag) => (
+                      <Badge key={tag} variant="outline">
+                        #{tag}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+
+          <section className="border-t border-line pt-8">
+            <div className="flex items-start justify-between gap-6 border border-line bg-card p-5">
+              <div>
+                <Label htmlFor="visibility" className="cursor-pointer text-sm text-ink">
+                  Publish to the public gallery
+                </Label>
+                <p className="mt-1.5 max-w-sm text-sm leading-relaxed text-muted-foreground">
+                  {form.visibility === "public"
+                    ? "Anyone can view these images. They will appear in the public gallery."
+                    : "Only you can see these images. You can make them public later."}
+                </p>
+              </div>
+              <Switch
+                id="visibility"
+                checked={form.visibility === "public"}
+                onCheckedChange={(checked) =>
+                  setForm((previous) => ({ ...previous, visibility: checked ? "public" : "private" }))
+                }
+                disabled={submitting}
+              />
+            </div>
+          </section>
+
+          {formError && (
+            <p role="alert" className="border-l-2 border-destructive pl-3 text-sm leading-relaxed text-destructive">
+              {formError}
+            </p>
+          )}
+          {notice && (
+            <p role="status" className="border-l-2 border-line pl-3 text-sm leading-relaxed text-muted-foreground">
+              {notice}
+            </p>
+          )}
+
+          {submitting && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>Uploading images…</span>
+                <span>{progress}%</span>
+              </div>
+              <Progress value={progress} className="w-full" />
+            </div>
+          )}
+
+          <Button
+            type="submit"
+            size="lg"
+            className="w-full sm:w-auto sm:min-w-[240px]"
+            disabled={submitting || isPreparing || items.length === 0 || pendingItems.length === 0}
+          >
+            {submitting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                Uploading…
+              </>
+            ) : isPreparing ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                Preparing previews…
+              </>
+            ) : (
+              `Upload ${pendingItems.length} image${pendingItems.length === 1 ? "" : "s"}`
+            )}
+          </Button>
         </div>
-      </div>
+
+        <aside className="lg:col-span-4">
+          <div className="lg:sticky lg:top-24">
+            <h2 className="font-serif text-2xl leading-none text-ink">Before you publish</h2>
+
+            <dl className="mt-5 divide-y divide-line border-y border-line text-sm">
+              <div className="py-4">
+                <dt className="font-medium text-ink">Formats</dt>
+                <dd className="mt-1 leading-relaxed text-muted-foreground">
+                  JPEG, PNG, WebP or AVIF. Up to 50 MB per file.
+                </dd>
+              </div>
+              <div className="py-4">
+                <dt className="font-medium text-ink">Privacy</dt>
+                <dd className="mt-1 leading-relaxed text-muted-foreground">
+                  Uploads are private by default. Turn on the public switch when you&apos;re ready to share.
+                </dd>
+              </div>
+              <div className="py-4">
+                <dt className="font-medium text-ink">Metadata</dt>
+                <dd className="mt-1 leading-relaxed text-muted-foreground">
+                  Public galleries use a preview generated in your browser. Location data is stripped before anything
+                  is shared.
+                </dd>
+              </div>
+              <div className="py-4">
+                <dt className="font-medium text-ink">Tags</dt>
+                <dd className="mt-1 leading-relaxed text-muted-foreground">
+                  Add up to 10 tags so people can find your work.
+                </dd>
+              </div>
+            </dl>
+
+            <p className="mt-6 text-xs leading-relaxed text-muted-foreground">
+              Files upload directly from your browser to storage. Your session and row-level security keep writes
+              limited to your own folder.
+            </p>
+          </div>
+        </aside>
+      </form>
     </div>
   )
 }

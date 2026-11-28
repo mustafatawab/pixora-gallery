@@ -1,6 +1,5 @@
 import Link from "next/link"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
 
 type FeedPaginationProps = {
   page: number
@@ -26,37 +25,44 @@ export function FeedPagination({ page, totalPages, search, category }: FeedPagin
   const hasNext = page < totalPages
 
   return (
-    <nav aria-label="Gallery pagination" className="mt-10 flex items-center justify-center gap-4">
+    <nav
+      aria-label="Gallery pagination"
+      className="mt-14 flex items-center justify-between border-t border-line pt-6 text-sm"
+    >
       {hasPrevious ? (
-        <Button asChild variant="outline">
-          <Link href={pageHref(page - 1, search, category)} rel="prev">
-            <ChevronLeft className="mr-1 h-4 w-4" />
-            Previous
-          </Link>
-        </Button>
-      ) : (
-        <Button variant="outline" disabled>
-          <ChevronLeft className="mr-1 h-4 w-4" />
+        <Link
+          href={pageHref(page - 1, search, category)}
+          rel="prev"
+          className="inline-flex items-center gap-1.5 font-medium text-ink transition-colors hover:text-brand"
+        >
+          <ChevronLeft className="h-4 w-4" />
           Previous
-        </Button>
+        </Link>
+      ) : (
+        <span className="inline-flex items-center gap-1.5 text-muted-foreground/50">
+          <ChevronLeft className="h-4 w-4" />
+          Previous
+        </span>
       )}
 
-      <span className="text-sm text-gray-600" aria-current="page">
+      <span className="text-xs text-muted-foreground" aria-current="page">
         Page {page} of {totalPages}
       </span>
 
       {hasNext ? (
-        <Button asChild variant="outline">
-          <Link href={pageHref(page + 1, search, category)} rel="next">
-            Next
-            <ChevronRight className="ml-1 h-4 w-4" />
-          </Link>
-        </Button>
-      ) : (
-        <Button variant="outline" disabled>
+        <Link
+          href={pageHref(page + 1, search, category)}
+          rel="next"
+          className="inline-flex items-center gap-1.5 font-medium text-ink transition-colors hover:text-brand"
+        >
           Next
-          <ChevronRight className="ml-1 h-4 w-4" />
-        </Button>
+          <ChevronRight className="h-4 w-4" />
+        </Link>
+      ) : (
+        <span className="inline-flex items-center gap-1.5 text-muted-foreground/50">
+          Next
+          <ChevronRight className="h-4 w-4" />
+        </span>
       )}
     </nav>
   )

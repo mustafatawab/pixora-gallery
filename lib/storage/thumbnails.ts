@@ -10,8 +10,8 @@
 
 import type { ThumbnailMime } from "@/lib/storage/paths"
 
-export const THUMBNAIL_MAX_DIMENSION = 1600
-export const THUMBNAIL_QUALITY = 0.85
+export const THUMBNAIL_MAX_DIMENSION = 1120
+export const THUMBNAIL_QUALITY = 0.8
 
 export type PreparedImage = {
   width: number
